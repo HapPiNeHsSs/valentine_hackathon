@@ -1,0 +1,51 @@
+cmake_minimum_required(VERSION 3.13)
+project(connect
+	VERSION 0.1
+	LANGUAGES CXX C)
+SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+# Remove the commented out line below to enable OpenTok debug traces.
+# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCONSOLE_LOGGING")
+SET(LIBPATH "/usr/local")
+INCLUDE(FindPkgConfig)
+PKG_SEARCH_MODULE(LIBSDL2 REQUIRED sdl2)
+find_package( OpenCV REQUIRED )
+find_package(X11 REQUIRED)
+message(STATUS "subproject: ${OpenCV_LIBS}") 
+#PKG_SEARCH_MODULE(LIBOPENTOK REQUIRED libopentok)
+message( $ENV{LIBOPENTOK_PATH} )
+if (DEFINED ENV{LIBOPENTOK_PATH})
+    find_path(LIBOPENTOK_HEADER opentok.h PATHS $ENV{LIBOPENTOK_PATH}/include NO_DEFAULT_PATH)
+    find_library(LIBOPENTOK_LIBRARIES libopentok NAMES libopentok.so PATHS $ENV{LIBOPENTOK_PATH}/lib NO_DEFAULT_PATH)
+endif ()
+find_path(LIBDATACHANNEL_HEADER rtc.h PATHS ${LIBPATH}/include/rtc/include NO_DEFAULT_PATH)
+find_library(LIBDATACHANNEL_LIBRARIES libdatachannel NAMES libdatachannel.so PATHS ${LIBPATH}/lib NO_DEFAULT_PATH)
+find_path(LIBUV_INCLUDE_DIR NAMES uv.h)
+find_library(LIBUV_LIBRARIES NAMES uv libuv)
+if (NOT LIBOPENTOK_LIBRARIES AND NOT LIBOPENTOK_HEADER)
+    PKG_SEARCH_MODULE(LIBOPENTOK REQUIRED libopentok)
+else ()
+    set(LIBOPENTOK_LIBRARY_DIRS $ENV{LIBOPENTOK_PATH}/lib)
+    set(LIBOPENTOK_INCLUDE_DIRS $ENV{LIBOPENTOK_PATH}/include)
+endif ()
+FIND_PACKAGE(Threads)
+message(" cv_libs:     " ${OpenCV_LIBS})
+message(" cv_includes: " ${OPENCV_INCLUDE_DIRS})
+message(" cv_includes: " ${LIBDATACHANNEL_LIBRARIES})
+
+
+
+
+find_package(Threads REQUIRED)
+
+
+link_libraries(${X11_LIBRARIES} ${LIBUV_LIBRARIES})
+INCLUDE_DIRECTORIES(${LIBUV_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../common/src ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/deps/json/include ${CMAKE_CURRENT_SOURCE_DIR}/** ${CMAKE_CURRENT_SOURCE_DIR}/../common ${LIBSDL2_INCLUDE_DIRS} ${LIBOPENTOK_INCLUDE_DIRS} ${X11_INCLUDE_DIR}) 
+LINK_DIRECTORIES(${LIBSDL2_LIBRARY_DIRS} ${LIBOPENTOK_LIBRARY_DIRS})
+
+ADD_EXECUTABLE(${PROJECT_NAME} main.cpp callbacks.cpp custom_capture_callbacks.cpp screen_capture.cpp python_connector.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/otk_thread.c ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/renderer.cpp)
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${OpenCV_LIBS} pthread ${LIBSDL2_LIBRARIES} ${LIBOPENTOK_LIBRARIES} ${LIBDATACHANNEL_LIBRARIES})

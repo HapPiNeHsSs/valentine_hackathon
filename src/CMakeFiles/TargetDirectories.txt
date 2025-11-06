@@ -1,0 +1,3 @@
+/home/beejay/projects/vonage-projects/Linux-Transport-ML/src/CMakeFiles/connect.dir
+/home/beejay/projects/vonage-projects/Linux-Transport-ML/src/CMakeFiles/edit_cache.dir
+/home/beejay/projects/vonage-projects/Linux-Transport-ML/src/CMakeFiles/rebuild_cache.dir
